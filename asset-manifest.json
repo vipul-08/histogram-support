@@ -1,0 +1,22 @@
+{
+  "files": {
+    "main.css": "/histogram-support/static/css/main.5ecd60fb.chunk.css",
+    "main.js": "/histogram-support/static/js/main.df6d6ab5.chunk.js",
+    "main.js.map": "/histogram-support/static/js/main.df6d6ab5.chunk.js.map",
+    "runtime-main.js": "/histogram-support/static/js/runtime-main.1ae0a419.js",
+    "runtime-main.js.map": "/histogram-support/static/js/runtime-main.1ae0a419.js.map",
+    "static/js/2.96232835.chunk.js": "/histogram-support/static/js/2.96232835.chunk.js",
+    "static/js/2.96232835.chunk.js.map": "/histogram-support/static/js/2.96232835.chunk.js.map",
+    "index.html": "/histogram-support/index.html",
+    "precache-manifest.035093dbf52c1165ba7d5a1ddcef5e77.js": "/histogram-support/precache-manifest.035093dbf52c1165ba7d5a1ddcef5e77.js",
+    "service-worker.js": "/histogram-support/service-worker.js",
+    "static/css/main.5ecd60fb.chunk.css.map": "/histogram-support/static/css/main.5ecd60fb.chunk.css.map",
+    "static/js/2.96232835.chunk.js.LICENSE.txt": "/histogram-support/static/js/2.96232835.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.1ae0a419.js",
+    "static/js/2.96232835.chunk.js",
+    "static/css/main.5ecd60fb.chunk.css",
+    "static/js/main.df6d6ab5.chunk.js"
+  ]
+}
