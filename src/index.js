@@ -372,7 +372,7 @@ ReactDOM.render(
       barDimension="Datasources"
       config={config}
       margin={margin}
-      isStacked={window.location.pathname !== '/'}
+      isStacked={window.location.search === '?isStacked'}
     />
   </React.StrictMode>,
   document.getElementById('root')
