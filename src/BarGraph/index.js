@@ -71,15 +71,7 @@ export default class BarGraph extends React.PureComponent {
     backgroundColor: '#f5f5f5',
   };
 
-  getConfig = (props = this.props) => {
-    const config = { ...this.defaultConfig, ...props.config };
-    // if (this.isDualAxis(props.data)) {
-      // const { margin } = config;
-      // return { ...config, margin: { ...margin, left: margin.left + 20, right: margin.right + 30 } };
-    // }
-
-    return config;
-  }
+  getConfig = (props = this.props) => ({ ...this.defaultConfig, ...props.config });
 
   getAxisStyle = moize.simple((position = 'left', config = this.getConfig()) => ({
     hideTicks: true,
@@ -158,6 +150,7 @@ export default class BarGraph extends React.PureComponent {
       this.marginLeft = this.getConfig(props).margin.left;
       this.marginRight = this.getConfig(props).margin.right;
       this.marginTop = this.getConfig(props).margin.top;
+      this.values = data.values;
       this.marginBottom = this.getConfig(props).margin.bottom;
       this.singleChartHeight = this.getSingleChartHeight(props);
       this.uniqueSeriesLabel = data.histograms.reduce((accumulator,histogram) => histogram.data.reduce((acc, split) => accumulator.includes(split.title) ? acc : acc.concat(split.title), accumulator) , []);
@@ -172,48 +165,36 @@ export default class BarGraph extends React.PureComponent {
         domain: this.uniqueSeriesLabel,
         range: this.getConfig(props).colors,
       });
-      this.numHistograms = isStacked ? 1 : data.histograms.length;
-
-      // console.log(data.histograms);
-
-      const stackedHistogramData =  data.histograms.reduce((accumulator,current) => {
-        const dimensionOne = current.title;
-        // console.log(dimensionOne,current.data);
-        current.data.reduce((acc, curr) => {
-          const dimensionTwo = curr.title;
-          const buckets = curr.buckets;
-          // console.log(dimensionOne,dimensionTwo,buckets);
-          buckets.map((b,val) => val);
-          return acc;
-        }, []);
-        return accumulator;
-      } , []);
-
-      const multiHistogramsData = data.histograms.map(({title, data}) => {
+      this.numHistograms = data.histograms.length;
+      const histogramData = data.histograms.map(({title, data}) => {
         const titleWithDimension = titleDimension ? `${titleDimension  }: ${  title}` : title;
+
         const formattedSeries = data.reduce((accumulator, current) => {
           const insideTitle = current.title;
           current.buckets.map((value,index) => {
             if (accumulator.length <= index) {
-              accumulator = [...accumulator, []]
+              accumulator = [...accumulator, { bucket: props.data.buckets[index]}]
             }
-            accumulator[index] = [...accumulator[index],{
-              title: insideTitle,
-              value: value,
-              bucket: props.data.buckets[index],
-            }];
+            accumulator[index][insideTitle] = value;
             return true;
           });
           return accumulator;
         },[]);
+
         const allData = formattedSeries.reduce((acc, curr) => {
-          const arr = curr.reduce((acc1, curr1) => [...acc1,curr1.value] , [])
-          return [...acc, ...arr]
+          if (isStacked) {
+            return [...acc, Object.keys(curr).filter((key) => key!=='bucket').reduce((acc1,curr1) => acc1 + curr[curr1] , 0)]
+          } else {
+            const arr = Object.keys(curr).filter((key) => key!=='bucket').reduce((acc1,curr1) => [...acc1,curr[curr1]] , []);
+            return [...acc, ...arr]
+          }
         } ,[]);
+
         const scaleY = scaleLinear({
           domain: [0, max(allData)],
           range: [ this.yMax, 0],
         });
+
         const tickValues = this.getTickValues(scaleY, 5);
         return {
           title: titleWithDimension,
@@ -223,42 +204,73 @@ export default class BarGraph extends React.PureComponent {
         }
       });
 
+
       this.data = {
         buckets: data.buckets,
-        histograms: isStacked ? [{
-          series: multiHistogramsData.map((hData) => hData)
-        }] : multiHistogramsData,
+        histograms: histogramData,
       };
     }
   }
 
-  renderStackedHistogram = moize((histograms, height) => (
-      <Group id="abcd" key={`xyz`} top={(height)}>
-        {this.renderSingleAxis(histograms)}
-      </Group>
-  ));
 
-  renderHistogram = moize((hist, ind, height) => (
-      <Group id="abcd" key={`${ind}-xyz`} top={(height * ind)}>
-        <Text
-            fontSize={14}
-            x={this.getConfig().margin.left}
-            y={this.getConfig().margin.top - 15}
-            textAnchor="start"
-            fill={this.getConfig().fontColor}
-            fontFamily={this.getConfig().fontFamily}
-            fontWeight="bold"
-        >
-          {hist.title}
-        </Text>
-        {this.renderSingleAxis(hist)}
-      </Group>
-  ));
+
+  renderStackedBarGroup = (barGroupData, yScale) => {
+
+    const stackedData = barGroupData.map((data) => {
+      const barsData = Object.keys(data).filter((k) => k!=='bucket').reduce((acc, curr) => [...acc, [curr, data[curr]]] ,[])
+      return {
+        bucket: data['bucket'],
+        value: barsData,
+      }
+    });
+
+    return (<BarGroup
+        data={stackedData}
+        x0={(v) => v.bucket}
+        x0Scale={this.bucketScale}
+        x1Scale={scaleBand({
+          domain: Object.keys(stackedData[0]).filter((val) => val !== 'bucket'),
+          padding: 0.1
+        }).rangeRound([0, this.bucketScale.bandwidth()])}
+        yScale={yScale}
+        color={this.legendScale}
+        keys={Object.keys(stackedData[0]).filter((val) => val !== 'bucket')}
+        height={this.singleChartHeight - this.marginTop}
+    >
+      {barGroups => barGroups.map((barGroup) => (
+          <Group left={barGroup.x0 }>
+            {
+              barGroup.bars.map((bar) => {
+              bar.heightValue = [];
+              let countValue = 0;
+              const verticalBars = bar.value.map((barValue) => {
+                countValue = barValue[1] + countValue;
+                return [...barValue, countValue];
+              });
+
+              return verticalBars.map((barValue) =>(
+                  <rect
+                      x={bar.x}
+                      y={yScale(barValue[2])}
+                      width={bar.width}
+                      height={this.singleChartHeight - this.marginTop - yScale(barValue[1])}
+                      fill={this.legendScale(barValue[0])}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        const json = {};
+                        json[barValue[0]] = barValue[1];
+                        alert(JSON.stringify(json));
+                      }}
+                  />
+              ));
+            })}
+          </Group>
+      ))}
+    </BarGroup>)
+  };
 
   renderBarGroup = (barGroupData, yScale) => {
-    console.log(barGroupData);
     return (
-
       <BarGroup
           data={barGroupData}
           x0={(v) => v.bucket}
@@ -273,9 +285,7 @@ export default class BarGraph extends React.PureComponent {
           height={this.singleChartHeight - this.marginTop}
       >
         {barGroups => barGroups.map((barGroup,ind1) => (
-            <Group
-                left={barGroup.x0 }
-            >
+            <Group left={barGroup.x0 }>
               { barGroup.bars.map((bar, ind2) => (
                   <rect
                       x={bar.x}
@@ -283,7 +293,6 @@ export default class BarGraph extends React.PureComponent {
                       width={bar.width}
                       height={bar.height}
                       fill={bar.color}
-                      rx={4}
                       style={{ cursor: 'pointer' }}
                       onClick={() => {
                         const { key, value } = bar;
@@ -311,14 +320,7 @@ export default class BarGraph extends React.PureComponent {
       left={this.marginLeft}
       // key={`${chartId}-single-axis-formatted`}
     >
-          {this.renderBarGroup(series.reduce((accumulator, current) => {
-            const barGroup = current.reduce((acc,cur) => {
-              acc[cur.title] = cur.value;
-              acc['bucket'] = cur.bucket;
-              return acc
-            }, {});
-            return [...accumulator, barGroup];
-          } ,[]), yScale)}
+      {this.props.isStacked ? this.renderStackedBarGroup(series,yScale) : this.renderBarGroup(series, yScale)}
     </Group>,
 
     <AxisLeft
@@ -352,6 +354,23 @@ export default class BarGraph extends React.PureComponent {
 
   ]);
 
+  renderHistogram = moize((hist, ind, height) => (
+      <Group id="abcd" key={`${ind}-xyz`} top={(height * ind)}>
+        <Text
+            fontSize={14}
+            x={this.getConfig().margin.left}
+            y={this.getConfig().margin.top - 15}
+            textAnchor="start"
+            fill={this.getConfig().fontColor}
+            fontFamily={this.getConfig().fontFamily}
+            fontWeight="bold"
+        >
+          {hist.title}
+        </Text>
+        {this.renderSingleAxis(hist)}
+      </Group>
+  ));
+
   render()
   {
     const { width, height } = this.props;
@@ -381,10 +400,7 @@ export default class BarGraph extends React.PureComponent {
                 height={(singleChartHeight * this.numHistograms) + this.getConfig().margin.bottom + this.getConfig().margin.top}
                 ref={(s) => { this.svg = s; }}>
               <rect x={0} y={0} width={width} height={height * this.numHistograms} fill="white" />
-              { this.props.isStacked
-                  ? this.renderStackedHistogram(this.data.histograms, singleChartHeight)
-                  : this.data.histograms.map((hist,ind) => this.renderHistogram(hist,ind,singleChartHeight))
-              }
+              {this.data.histograms.map((hist,ind) => this.renderHistogram(hist,ind,singleChartHeight))}
             </svg>
           </div>
         </div>

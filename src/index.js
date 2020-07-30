@@ -6,11 +6,18 @@ import BarGraph from './BarGraph';
 
 const margin = { top: 40, right: 0, bottom: 40, left: 0 };
 const data = {
+    "values": [
+        "Num Konom Queries (Konom Metrics)"
+    ],
     "buckets": [
-        "2000-4000",
-        "4000-6000",
-        "6000-8000",
-        "8000-10000",
+        "2000-3000",
+        "3000-4000",
+        "4000-5000",
+        "5000-6000",
+        "6000-7000",
+        "7000-8000",
+        "8000-9000",
+        "9000-10000",
         "10000++"
     ],
     "histograms": [
@@ -20,50 +27,70 @@ const data = {
                 {
                     "title": "CM Failover Realtime",
                     "buckets": [
-                        220,
-                        83,
-                        59,
-                        30,
+                        148,
+                        72,
+                        47,
+                        36,
+                        26,
+                        33,
+                        18,
+                        12,
                         158
                     ]
                 },
                 {
                     "title": "CM Page View",
                     "buckets": [
-                        380,
-                        127,
-                        99,
-                        71,
+                        239,
+                        141,
+                        85,
+                        42,
+                        56,
+                        43,
+                        32,
+                        39,
                         217
                     ]
                 },
                 {
                     "title": "CM Ad Click",
                     "buckets": [
-                        411,
-                        137,
-                        90,
-                        46,
+                        277,
+                        134,
+                        85,
+                        52,
+                        58,
+                        32,
+                        28,
+                        18,
                         89
                     ]
                 },
                 {
                     "title": "HB Rendered Ad",
                     "buckets": [
-                        451,
-                        191,
-                        90,
-                        57,
+                        297,
+                        154,
+                        116,
+                        75,
+                        52,
+                        38,
+                        33,
+                        24,
                         194
                     ]
                 },
                 {
                     "title": "HB Provider Response",
                     "buckets": [
-                        250,
-                        122,
-                        57,
-                        36,
+                        150,
+                        100,
+                        75,
+                        47,
+                        25,
+                        32,
+                        23,
+                        13,
                         255
                     ]
                 }
@@ -75,50 +102,70 @@ const data = {
                 {
                     "title": "HB Rendered Ad",
                     "buckets": [
-                        256,
-                        77,
-                        48,
-                        22,
+                        174,
+                        82,
+                        38,
+                        39,
+                        18,
+                        30,
+                        14,
+                        8,
                         47
                     ]
                 },
                 {
                     "title": "CM Page View",
                     "buckets": [
-                        208,
-                        86,
-                        49,
-                        43,
+                        142,
+                        66,
+                        55,
+                        31,
+                        25,
+                        24,
+                        21,
+                        22,
                         200
                     ]
                 },
                 {
                     "title": "CM Ad Click",
                     "buckets": [
-                        66,
-                        35,
+                        45,
+                        21,
+                        17,
                         18,
-                        11,
+                        6,
+                        12,
+                        5,
+                        6,
                         52
                     ]
                 },
                 {
                     "title": "HB Provider Response",
                     "buckets": [
-                        135,
-                        57,
-                        102,
-                        60,
+                        92,
+                        43,
+                        30,
+                        27,
+                        41,
+                        61,
+                        32,
+                        28,
                         462
                     ]
                 },
                 {
                     "title": "HB Publisher Slot Impressions",
                     "buckets": [
-                        194,
-                        77,
-                        29,
-                        22,
+                        127,
+                        67,
+                        42,
+                        35,
+                        16,
+                        13,
+                        11,
+                        11,
                         67
                     ]
                 }
@@ -130,9 +177,13 @@ const data = {
                 {
                     "title": "HB Rendered Ad",
                     "buckets": [
-                        46,
-                        15,
-                        6,
+                        34,
+                        12,
+                        12,
+                        3,
+                        3,
+                        3,
+                        0,
                         3,
                         21
                     ]
@@ -140,9 +191,13 @@ const data = {
                 {
                     "title": "HB Publisher Slot Impressions",
                     "buckets": [
-                        50,
-                        11,
-                        7,
+                        35,
+                        15,
+                        8,
+                        3,
+                        4,
+                        3,
+                        0,
                         3,
                         20
                     ]
@@ -150,9 +205,13 @@ const data = {
                 {
                     "title": "HB Auction Participants",
                     "buckets": [
-                        3,
                         2,
                         1,
+                        1,
+                        1,
+                        1,
+                        0,
+                        0,
                         0,
                         1
                     ]
@@ -160,10 +219,14 @@ const data = {
                 {
                     "title": "CXT Url Reporting",
                     "buckets": [
-                        4,
+                        3,
+                        1,
+                        0,
                         0,
                         1,
+                        0,
                         1,
+                        0,
                         0
                     ]
                 }
@@ -175,39 +238,55 @@ const data = {
                 {
                     "title": "DMM Auction Participants",
                     "buckets": [
-                        1502,
-                        213,
-                        78,
-                        42,
+                        1058,
+                        444,
+                        134,
+                        79,
+                        43,
+                        35,
+                        24,
+                        18,
                         85
                     ]
                 },
                 {
                     "title": "DMM Rendered Ad",
                     "buckets": [
-                        1502,
-                        213,
-                        78,
-                        42,
+                        1058,
+                        444,
+                        134,
+                        79,
+                        43,
+                        35,
+                        24,
+                        18,
                         85
                     ]
                 },
                 {
                     "title": "HB Rendered Ad",
                     "buckets": [
-                        65,
-                        17,
+                        53,
+                        12,
+                        8,
+                        9,
+                        2,
+                        1,
                         3,
-                        3,
+                        0,
                         9
                     ]
                 },
                 {
                     "title": "CM Page View",
                     "buckets": [
-                        60,
-                        27,
+                        45,
+                        15,
+                        19,
                         8,
+                        5,
+                        3,
+                        0,
                         1,
                         4
                     ]
@@ -215,9 +294,13 @@ const data = {
                 {
                     "title": "CM Ad Click",
                     "buckets": [
-                        14,
-                        1,
+                        12,
                         2,
+                        1,
+                        0,
+                        2,
+                        0,
+                        0,
                         0,
                         3
                     ]
@@ -230,10 +313,14 @@ const data = {
                 {
                     "title": "CM Page View",
                     "buckets": [
-                        100,
-                        139,
-                        167,
-                        184,
+                        52,
+                        48,
+                        62,
+                        77,
+                        79,
+                        88,
+                        103,
+                        81,
                         2436
                     ]
                 }
@@ -281,10 +368,11 @@ ReactDOM.render(
       width={1000}
       height={1000}
       data={data}
-      titleDimension={"Appname"}
+      titleDimension="Appname"
+      barDimension="Datasources"
       config={config}
       margin={margin}
-      isStacked={false}
+      isStacked={window.location.pathname !== '/'}
     />
   </React.StrictMode>,
   document.getElementById('root')
