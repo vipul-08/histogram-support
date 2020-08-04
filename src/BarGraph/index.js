@@ -5,7 +5,6 @@ import {max} from 'd3-array';
 import moize from 'moize';
 import Legend from "./Legend";
 import {Text} from "@vx/text";
-import { BarGroup } from '@vx/shape';
 import { AxisLeft, AxisBottom } from '@vx/axis';
 import { scaleBand, scaleOrdinal, scaleLinear } from '@vx/scale';
 import LegendShapeComp from './LegendShape';
@@ -216,93 +215,92 @@ export default class BarGraph extends React.PureComponent {
 
   renderStackedBarGroup = (barGroupData, yScale) => {
 
-    const stackedData = barGroupData.map((data) => {
+    const data = barGroupData.map((data) => {
       const barsData = Object.keys(data).filter((k) => k!=='bucket').reduce((acc, curr) => [...acc, [curr, data[curr]]] ,[])
       return {
         bucket: data['bucket'],
         value: barsData,
       }
     });
+    const x0 = (v) => v.bucket;
+    const x0Scale = this.bucketScale;
+    const zScale = this.legendScale;
 
-    return (<BarGroup
-        data={stackedData}
-        x0={(v) => v.bucket}
-        x0Scale={this.bucketScale}
-        x1Scale={scaleBand({
-          domain: Object.keys(stackedData[0]).filter((val) => val !== 'bucket'),
-          padding: 0.1
-        }).rangeRound([0, this.bucketScale.bandwidth()])}
-        yScale={yScale}
-        color={this.legendScale}
-        keys={Object.keys(stackedData[0]).filter((val) => val !== 'bucket')}
-        height={this.singleChartHeight - this.marginTop}
-    >
-      {barGroups => barGroups.map((barGroup) => (
-          <Group left={barGroup.x0 }>
-            {
-              barGroup.bars.map((bar) => {
-              bar.heightValue = [];
-              let countValue = 0;
-              const verticalBars = bar.value.map((barValue) => {
-                countValue = barValue[1] + countValue;
-                return [...barValue, countValue];
-              });
-
-              return verticalBars.map((barValue) =>(
-                  <rect
-                      x={bar.x}
-                      y={yScale(barValue[2])}
-                      width={bar.width}
-                      height={this.singleChartHeight - this.marginTop - yScale(barValue[1])}
-                      fill={this.legendScale(barValue[0])}
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => {
-                        const json = {};
-                        json[barValue[0]] = barValue[1];
-                        alert(JSON.stringify(json));
-                      }}
-                  />
-              ));
-            })}
-          </Group>
-      ))}
-    </BarGroup>)
+    return (
+        <Group
+            className={'vx-bar-group'}
+        >
+          {data && data.map((d, i) => {
+            let countValue = 0;
+            const verticalBars = d.value.map((barValue) => {
+              countValue = barValue[1] + countValue;
+              return [...barValue, countValue];
+            });
+            return (
+                <Group
+                    key={`bar-group-${i}-${x0(d)}`}
+                    left={x0Scale(x0(d))}
+                >
+                  {verticalBars.map(([key,value,height]) => {
+                    return (
+                        <rect
+                            key={`bar-group-bar-${i}-${value}-${key}`}
+                            x={0}
+                            y={yScale(height)}
+                            style={{ cursor: 'pointer'}}
+                            onClick={() => alert(`${key}: ${value}`)}
+                            width={x0Scale.bandwidth()}
+                            height={this.singleChartHeight - this.marginTop - yScale(value)}
+                            fill={zScale(key)}
+                        />
+                    );
+                  })}
+                </Group>
+            );
+          })}
+        </Group>
+    );
   };
 
   renderBarGroup = (barGroupData, yScale) => {
+    const data = barGroupData;
+    const x0 = (v) => v.bucket;
+    const x0Scale = this.bucketScale;
+    const x1Scale= scaleBand({
+      domain: this.uniqueSeriesLabel.filter((label) => Object.keys(barGroupData[0]).includes(label)),
+      padding: 0.1,
+      rangeRound: [0, this.bucketScale.bandwidth()]
+    });
+    const zScale = this.legendScale;
+    const keys= Object.keys(barGroupData[0]).filter((val) => val !== 'bucket');
+    const height= this.singleChartHeight - this.marginTop;
     return (
-      <BarGroup
-          data={barGroupData}
-          x0={(v) => v.bucket}
-          x0Scale={this.bucketScale}
-          x1Scale={scaleBand({
-            domain: this.uniqueSeriesLabel.filter((label) => Object.keys(barGroupData[0]).includes(label)),
-            padding: 0.1
-          }).rangeRound([0, this.bucketScale.bandwidth()])}
-          yScale={yScale}
-          color={this.legendScale}
-          keys={Object.keys(barGroupData[0]).filter((val) => val !== 'bucket')}
-          height={this.singleChartHeight - this.marginTop}
-      >
-        {barGroups => barGroups.map((barGroup,ind1) => (
-            <Group left={barGroup.x0 }>
-              { barGroup.bars.map((bar, ind2) => (
-                  <rect
-                      x={bar.x}
-                      y={bar.y}
-                      width={bar.width}
-                      height={bar.height}
-                      fill={bar.color}
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => {
-                        const { key, value } = bar;
-                        alert(JSON.stringify({ key, value }));
-                      }}
-                  />
-              ))}
-            </Group>
-        ))}
-      </BarGroup>
+        <Group className={'vx-bar-group'}>
+          {data && data.map((d, i) => {
+            return (
+                <Group
+                    key={`bar-group-${i}-${x0(d)}`}
+                    left={x0Scale(x0(d))}
+                >
+                  {keys && keys.map((key, i) => {
+                    const value = d[key];
+                    return (
+                        <rect
+                            key={`bar-group-bar-${i}-${value}-${key}`}
+                            x={x1Scale(key)}
+                            y={yScale(value)}
+                            style={{ cursor: 'pointer'}}
+                            onClick={() => alert(`${key}: ${value}`)}
+                            width={x1Scale.bandwidth()}
+                            height={height - yScale(value)}
+                            fill={zScale(key)}
+                        />
+                    );
+                  })}
+                </Group>
+            );
+          })}
+        </Group>
     );
   };
 
