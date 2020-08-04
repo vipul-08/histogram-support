@@ -90,27 +90,8 @@ export default class BarGraph extends React.PureComponent {
   }));
 
   getTickValues = (scale, desiredTicks) => {
-    const ticks = scale.ticks(desiredTicks);
-    const lastTick = ticks[ticks.length-1];
-    const newLastTick = lastTick + (ticks[1] - ticks[0]);
-
-    // if the last tick is smaller than max value, extend the scale domain
-    if(lastTick < scale.domain()[1]) {
-      ticks.push(newLastTick);
-      scale.domain([scale.domain()[0], newLastTick]);
-    }
-
-    // returns num no.of evenly spread elements from arr
-    const num = desiredTicks + 1;
-    const len = ticks.length;
-    const r = [];
-
-    for(let i=0;i<num;i+=1) {
-      r.push(ticks[Math.ceil(i * len / num)]);
-    }
-
-    return r;
-  }
+    return scale.ticks(desiredTicks);
+  };
 
   formatYAxisTick = (num) => {
     if (num < 1) {
@@ -323,7 +304,6 @@ export default class BarGraph extends React.PureComponent {
 
     <AxisLeft
       top={this.marginTop}
-      // key={`${chartId}-axis-left`}
       left={this.marginLeft}
       scale={yScale}
       numTicks={5}
